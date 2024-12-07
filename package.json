@@ -1,0 +1,29 @@
+{
+  "name": "rewardpay-coding-challenge",
+  "version": "1.0.0",
+  "description": "This repo contains the instructions and the data you need to complete the _RewardPay coding challenge_.  This challenge is not intended to be complex, but it is an opportunity for you to showcase your understanding and applying of good development practices.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "dev": "tsx ./src/index.ts",
+    "build": "tsc",
+    "start": "node ./dist/src/index.js",
+    "clean": "rm -rf ./dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/eslint-config-prettier": "^6.11.3",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.4.2",
+    "ts-jest": "^29.2.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
