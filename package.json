@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "dev": "tsx ./src/index.ts",
-    "build": "tsc",
+    "build": "npm run clean && tsc && tsc-alias",
     "start": "node ./dist/src/index.js",
     "clean": "rm -rf ./dist"
   },
@@ -25,6 +25,7 @@
     "mock-fs": "^5.4.1",
     "prettier": "^3.4.2",
     "ts-jest": "^29.2.5",
+    "tsc-alias": "^1.8.10",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   },

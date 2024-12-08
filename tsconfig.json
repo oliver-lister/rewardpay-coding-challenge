@@ -4,10 +4,14 @@
     "moduleDetection": "force",
 
     // Ignore module structure
-    "module": "Preserve",
+    "module": "ESNext",
+
+    "target": "ES6",
 
     // Allow JSON modules to be imported
     "resolveJsonModule": true,
+
+    "moduleResolution": "node",
 
     // Allow JS files to be imported from TS and vice versa
     "allowJs": true,
@@ -23,6 +27,10 @@
 
     // Enable strict type-checking options
     "strict": true
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": false
   },
   "include": ["src/**/*", "tests/**/*.ts"],
   "exclude": ["node_modules"]
