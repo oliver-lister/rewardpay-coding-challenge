@@ -297,4 +297,104 @@ describe("AccountingMetrics class", () => {
       expect(result).toBeCloseTo(expected, 2);
     });
   });
+
+  describe("calculateCategoryNetValue", () => {
+    describe("assets", () => {
+      it("should correctly calculate the net value of assets with valid debit and credit records", () => {
+        const validAccountTypes = [
+          "current",
+          "bank",
+          "current_accounts_receivable",
+        ];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "assets",
+          validAccountTypes,
+        );
+
+        const expectedDebitTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "assets" &&
+              record.valueType === "debit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        const expectedCreditTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "assets" &&
+              record.valueType === "credit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        const expectedNetValue = expectedDebitTotal - expectedCreditTotal;
+
+        expect(result).toBeCloseTo(expectedNetValue, 2);
+      });
+
+      it("should return 0 if there are no valid asset records", () => {
+        const validAccountTypes = ["invalid_type"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "assets",
+          validAccountTypes,
+        );
+        expect(result).toBe(0);
+      });
+
+      it("should correctly calculate the net value when all records are debits", () => {
+        const validAccountTypes = ["bank"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "assets",
+          validAccountTypes,
+        );
+
+        const expectedDebitTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "assets" &&
+              record.valueType === "debit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        expect(result).toBeCloseTo(expectedDebitTotal, 2);
+      });
+
+      it("should correctly calculate the net value when all records are credits", () => {
+        const validAccountTypes = ["current_accounts_receivable"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "assets",
+          validAccountTypes,
+        );
+
+        const expectedCreditTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "assets" &&
+              record.valueType === "credit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        expect(result).toBeCloseTo(-expectedCreditTotal, 2);
+      });
+
+      it("should handle empty data correctly", () => {
+        accountingMetrics = new AccountingMetrics([]);
+        const validAccountTypes = [
+          "current",
+          "bank",
+          "current_accounts_receivable",
+        ];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "assets",
+          validAccountTypes,
+        );
+
+        expect(result).toBe(0);
+      });
+    });
+  });
 });
