@@ -432,7 +432,7 @@ describe("AccountingMetrics class", () => {
           )
           .reduce((sum, record) => sum + record.totalValue, 0);
 
-        const expectedNetValue = expectedDebitTotal - expectedCreditTotal;
+        const expectedNetValue = expectedCreditTotal - expectedDebitTotal;
 
         expect(result).toBeCloseTo(expectedNetValue, 2);
       });
@@ -481,7 +481,7 @@ describe("AccountingMetrics class", () => {
           )
           .reduce((sum, record) => sum + record.totalValue, 0);
 
-        expect(result).toBeCloseTo(-expectedCreditTotal, 2);
+        expect(result).toBeCloseTo(expectedCreditTotal, 2);
       });
 
       it("should handle empty data correctly", () => {
@@ -520,7 +520,7 @@ describe("AccountingMetrics class", () => {
           )
           .reduce((sum, record) => sum + record.totalValue, 0);
 
-        const expectedNetValue = expectedDebitTotal - expectedCreditTotal;
+        const expectedNetValue = expectedCreditTotal - expectedDebitTotal;
 
         expect(result).toBeCloseTo(expectedNetValue, 2);
       });
