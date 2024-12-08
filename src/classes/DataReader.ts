@@ -1,29 +1,14 @@
-import fs from "fs";
+import { promises } from "fs";
 
 export class DataReader {
-  static async readJson<T>(filePath: string): Promise<T> {
-    return new Promise((resolve, reject) => {
-      fs.readFile(filePath, "utf8", (err, fileData) => {
-        if (err) {
-          return reject(
-            new Error(`Failed to read file: ${filePath}. ${err.message}`),
-          );
-        }
-        try {
-          const data = JSON.parse(fileData) as T;
-          resolve(data);
-        } catch (parseError) {
-          reject(
-            new Error(
-              `Failed to parse JSON data from file: ${filePath}. ${
-                parseError instanceof Error
-                  ? parseError.message
-                  : String(parseError)
-              }`,
-            ),
-          );
-        }
-      });
-    });
+  static async readAndParseJson<T>(filePath: string): Promise<T> {
+    const content = await promises.readFile(filePath, "utf8");
+    try {
+      return JSON.parse(content) as T;
+    } catch (error) {
+      throw new Error(
+        `Failed to parse JSON data from file: ${filePath}. ${error}`,
+      );
+    }
   }
 }
