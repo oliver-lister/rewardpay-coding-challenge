@@ -116,7 +116,7 @@ export class AccountingMetrics {
    * Calculates the total assets from account data.
    * @returns The total assets as a number.
    */
-  private calculateAssets(): number {
+  calculateAssets(): number {
     const validAccountTypes = [
       "current",
       "bank",
@@ -129,7 +129,7 @@ export class AccountingMetrics {
    * Calculates the total liabilities from account data.
    * @returns The total liabilities as a number.
    */
-  private calculateLiabilities(): number {
+  calculateLiabilities(): number {
     const validAccountTypes = ["current", "current_accounts_payable"];
     return this.calculateCategoryNetValue("liability", validAccountTypes);
   }

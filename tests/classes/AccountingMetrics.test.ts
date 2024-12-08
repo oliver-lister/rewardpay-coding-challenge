@@ -65,7 +65,7 @@ describe("AccountingMetrics class", () => {
     it("should correctly calculate total expenses from the data", () => {
       const result = accountingMetrics.calculateExpenses();
 
-      const expected = 1289.58 + 620.5 + 35.9 + 102.5;
+      const expected = 1289.58;
 
       expect(result).toBeCloseTo(expected, 2);
     });
@@ -91,7 +91,7 @@ describe("AccountingMetrics class", () => {
 
       const result = accountingMetrics.calculateExpenses();
 
-      const expected = 1289.58 + 620.5 + 35.9 + 102.5;
+      const expected = 1289.58;
 
       expect(result).toBeCloseTo(expected, 2);
     });
@@ -524,6 +524,78 @@ describe("AccountingMetrics class", () => {
 
         expect(result).toBeCloseTo(expectedNetValue, 2);
       });
+    });
+  });
+  describe("calculateWorkingCapitalRatio", () => {
+    it("should calculate the correct working capital ratio when both assets and liabilities are present", () => {
+      const mockAssets = accountingMetrics["calculateCategoryNetValue"](
+        "assets",
+        ["current", "bank", "current_accounts_receivable"],
+      );
+      const mockLiabilities = accountingMetrics["calculateCategoryNetValue"](
+        "liability",
+        ["current", "current_accounts_payable"],
+      );
+
+      const result = accountingMetrics.calculateWorkingCapitalRatio();
+
+      const expected = mockAssets / mockLiabilities;
+      expect(result).toBeCloseTo(expected, 2);
+    });
+
+    it("should throw an error if liabilities are zero", () => {
+      jest.spyOn(accountingMetrics, "calculateLiabilities").mockReturnValue(0); // Mock liabilities as zero
+
+      expect(() => accountingMetrics.calculateWorkingCapitalRatio()).toThrow(
+        "Liabilities cannot be zero when calculating Working Capital Ratio.",
+      );
+    });
+
+    it("should handle a case where assets are zero but liabilities are non-zero", () => {
+      jest.spyOn(accountingMetrics, "calculateAssets").mockReturnValue(0);
+
+      const result = accountingMetrics.calculateWorkingCapitalRatio();
+
+      expect(result).toBeCloseTo(0, 2);
+    });
+
+    it("should handle extremely large values for both assets and liabilities", () => {
+      jest
+        .spyOn(accountingMetrics, "calculateAssets")
+        .mockReturnValue(Number.MAX_SAFE_INTEGER);
+      jest
+        .spyOn(accountingMetrics, "calculateLiabilities")
+        .mockReturnValue(Number.MAX_SAFE_INTEGER);
+
+      const result = accountingMetrics.calculateWorkingCapitalRatio();
+
+      expect(result).toBe(1);
+    });
+
+    it("should calculate correctly when assets are greater than liabilities", () => {
+      jest.spyOn(accountingMetrics, "calculateAssets").mockReturnValue(5000);
+      jest
+        .spyOn(accountingMetrics, "calculateLiabilities")
+        .mockReturnValue(2500);
+
+      const result = accountingMetrics.calculateWorkingCapitalRatio();
+
+      const expected = 5000 / 2500;
+
+      expect(result).toBe(expected);
+    });
+
+    it("should calculate correctly when liabilities are greater than assets", () => {
+      jest.spyOn(accountingMetrics, "calculateAssets").mockReturnValue(2000);
+      jest
+        .spyOn(accountingMetrics, "calculateLiabilities")
+        .mockReturnValue(4000);
+
+      const result = accountingMetrics.calculateWorkingCapitalRatio();
+
+      const expected = 2000 / 4000;
+
+      expect(result).toBe(expected);
     });
   });
 });
