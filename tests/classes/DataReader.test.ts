@@ -12,6 +12,7 @@ describe("DataReader class", () => {
       mock({
         data: {
           "data.json": mockFileData,
+          "invalid.json": "# I'm not JSON",
         },
       });
     });
@@ -31,7 +32,13 @@ describe("DataReader class", () => {
 
     it("should throw an error when the file does not exist", async () => {
       await expect(
-        dataReader.readAndParseJson("./invalid.json"),
+        dataReader.readAndParseJson("./i_dont_exist.json"),
+      ).rejects.toThrow(/Failed to read file/);
+    });
+
+    it("should throw an error when the file is not valid JSON", async () => {
+      await expect(
+        dataReader.readAndParseJson(`${process.cwd()}/data/invalid.json`),
       ).rejects.toThrow(/Failed to read file/);
     });
   });
