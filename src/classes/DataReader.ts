@@ -18,4 +18,22 @@ export class DataReader {
       );
     }
   }
+
+  static convertToCamelCase<T>(object: any): T {
+    if (Array.isArray(object)) {
+      return object.map(this.convertToCamelCase) as T;
+    } else if (object !== null && object.constructor === Object) {
+      return Object.entries(object).reduce(
+        (acc, [key, value]) => {
+          const camelKey = key.replace(/([-_][a-z])/g, (match) =>
+            match.toUpperCase().replace("-", "").replace("_", ""),
+          );
+          acc[camelKey] = this.convertToCamelCase(value);
+          return acc;
+        },
+        {} as Record<string, any>,
+      ) as T;
+    }
+    return object;
+  }
 }
