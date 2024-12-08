@@ -2,94 +2,157 @@
 
 ## Overview
 
-This repo contains the instructions and the data you need to complete the _RewardPay coding challenge_.  This challenge is not intended to be complex, but it is an opportunity for you to showcase your understanding and applying of good development practices.
+This repository contains my solution to the RewardPay coding challenge.
 
-You are encouraged to treat this as a real-life project.  This typically means:
+The application processes an external data file (`data.json`), computes key accounting metrics, and outputs them to the console with proper formatting.
 
-- Use version control effectively
-- Include some basic documentation
-- Include some unit tests
-- Adhere to a naming convention
+## Features
 
-Please use JavaScript of TypeScript to complete this challenge.
+- Reads the provided `data.json` file asynchronously to ensure non-blocking operations.
+- Parses and validates the JSON structure using the **Zod** library for robust type checking.
+- Converts object keys to **camelCase** to ensure alignment with TypeScript best practices, enabling consistent naming conventions across the codebase.
+- Implements a class-based architecture to calculate the following accounting metrics:
+  - **Revenue**: Total value of revenue accounts.
+  - **Expenses**: Total value of expense accounts.
+  - **Gross Profit Margin**: Percentage of revenue derived from sales.
+  - **Net Profit Margin**: Percentage of profit after deducting expenses from revenue.
+  - **Working Capital Ratio**: Ratio of assets to liabilities, expressed as a percentage.
+- Formats the output in clear currency or percentage styles for readability.
+- Includes a CI workflow with automated testing triggered on push, utilising Docker.
 
-## The Challenge
+## Getting Started
 
-You are tasked with developing an application that performs the following tasks in sequence:
+### Prerequisites
 
-- Read and parse an external data file `data.json` (located in this repo)
-- Using this data, calculate and print the values of 5 common accounting metrics:
-  1. Revenue
-  2. Expenses
-  3. Gross Profit Margin
-  4. Net Profit Margin
-  5. Working Capital Ratio
-- Commit your changes, and upload all your work to a feature branch of your choice.
+To run this application, ensure you have the following installed:
 
-## Instructions
+- **Node.js**: v18 or higher
+- **npm**: v8 or higher (comes bundled with Node.js)
 
-- Begin by _forking_ the current repository to your own `github.com` account
-- Clone the repo locally
-- Write your code, _commit often_
-- Once you are satisfied with the output, push your changes to your `github.com` account
-- Share the link
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/oliver-lister/rewardpay-coding-challenge.git
+   cd rewardpay-coding-challenge
+   git checkout feature/accounting-metrics
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## Usage
+
+### Build and Run the Application
+
+#### Using NPM
+
+Run the following commands to build and start the application:
+
+```bash
+npm run build
+npm run start
+```
+
+The output should look like this:
+
+```plaintext
+> rewardpay-coding-challenge@1.0.0 start
+> node ./dist/src/index.js
+
+Revenue: $32,431
+Expenses: $36,530
+Gross Profit Margin: 0.0%
+Net Profit Margin: -12.6%
+Working Capital Ratio: 118.8%
+```
+
+#### _Optional:_ Docker Image
+
+If you wish to build and run the application as a docker container, simply run the following commands:
+
+```bash
+docker build -t rewardpay-coding-challenge .
+docker run rewardpay-coding-challenge
+```
+
+### Tests
+
+To run the `Jest` unit tests:
+
+```bash
+npm test
+```
 
 ## Calculations
 
-Use the formulas below to calculate your values:
+1. **Revenue**  
+   Sum all `total_value` fields where `account_category` is `"revenue"`.
 
-### Revenue
+2. **Expenses**  
+   Sum all `total_value` fields where `account_category` is `"expense"`.
 
-This should be calculated by adding up all the values under `total_value` where the `account_category` field is set to `revenue`
+3. **Gross Profit Margin**
 
-### Expenses
+   - Sum `total_value` fields where `account_type` is `"sales"` and `value_type` is `"debit"`.
+   - Divide this by the revenue value and multiply by 100 to get a percentage.
 
-This should be calculated by adding up all the values under `total_value` where the `account_category` field is set to `expense`
+4. **Net Profit Margin**
 
-### Gross Profit Margin
+   - Subtract expenses from revenue.
+   - Divide the result by revenue and multiply by 100 to get a percentage.
 
-This is calculated in two steps: first by adding all the `total_value` fields where the `account_type` is set to `sales` and the `value_type` is set to `debit`; then dividing that by the `revenue` value calculated earlier to generate a percentage value.
+5. **Working Capital Ratio**  
+   **Assets:**
 
-### Net Profit Margin
+   - Add `total_value` where:
+     - `account_category` is `"assets"`.
+     - `value_type` is `"debit"`.
+     - `account_type` is `"current"`, `"bank"`, or `"current_accounts_receivable"`.
+   - Subtract `total_value` where:
+     - `account_category` is `"assets"`.
+     - `value_type` is `"credit"`.
+     - `account_type` is `"current"`, `"bank"`, or `"current_accounts_receivable"`.
 
-This metric is calculated by subtracting the `expenses` value from the `revenue` value and dividing the remainder by `revenue` to calculate a percentage.
+   **Liabilities:**
 
-### Working Capital Ratio
+   - Add `total_value` where:
+     - `account_category` is `"liability"`.
+     - `value_type` is `"credit"`.
+     - `account_type` is `"current"` or `"current_accounts_payable"`.
+   - Subtract `total_value` where:
+     - `account_category` is `"liability"`.
+     - `value_type` is `"debit"`.
+     - `account_type` is `"current"` or `"current_accounts_payable"`.
 
-This is calculated dividing the `assets` by the `liabilities` creating a percentage value where `assets` are calculated by:
+   **Formula:**
 
-- adding the `total_value` from all records where the `account_category` is set to `assets`, the `value_type` is set to `debit`, and the `account_type` is one of `current`, `bank`, or `current_accounts_receivable`
-- subtracting the `total_value` from all records where the `account_category` is set to `assets`, the `value_type` is set to `credit`, and the `account_type` is one of `current`, `bank`, or `current_accounts_receivable`
+   - Divide assets by liabilities and multiply by 100 to get a percentage.
 
-and liabilities are calculated by:
+---
 
-- adding the `total_value` from all records where the `account_category` is set to `liability`, the `value_type` is set to `credit`, and the `account_type` is one of `current` or `current_accounts_payable`
-- subtracting the `total_value` from all records where the `account_category` is set to `liability`, the `value_type` is set to `debit`, and the `account_type` is one `current` or `current_accounts_payable`
+### Formatting
 
-## Formatting
+#### **Currency Figures:**
 
-All currency figures must be formatted as follows:
-- The value is prefixed with a `$` sign
-- A comma is used to separate every 3 digits in the thousands, millions, billions, and trillions
-- Cents are removed
+- Prefixed with `$`.
+- Use commas to separate thousands.
+- Remove cents by rounding to the nearest whole number (e.g., `$32,431`).
+- Note: The rounding approach used in this application is standard rounding, where numbers with decimal values of `.5` or higher are rounded up. For increased precision, especially in financial calculations, you could implement **bankers' rounding** using libraries like `big.js`.
 
-All percentage values must be formatted to one decimal digit and be prefixed with a `%` sign.  Don't forget to multiply by 100 each time you're tasked with calculating a percentage value.
+#### **Percentage Values:**
 
-## Example
+- Displayed with one decimal point for clarity (e.g., `118.8%`).
+- Rounded to the nearest tenth using standard rounding.
+- Note: Similarly, for more precise percentage calculations, **bankers' rounding** with a library like `big.js` could be applied to ensure consistent results, especially for edge cases in large datasets.
 
-Below is what a typical output should look like.  Please note this is *not* the output of the challenge but a mere example.
+[Bankers' Rounding Documentation](https://docs.alipayplus.com/alipayplus/alipayplus/reconcile_mpp/bank_rounding?role=MPP&product=Payment1&version=1.5.5)
 
-```
-$ ./myChallenge
-Revenue: $519,169
-Expenses: $411,664
-Gross Profit Margin: 22%
-Net Profit Margin: 21%
-Working Capital Ratio: 95%
-```
+---
 
-# Dependencies
+### Dependencies
 
-If your program requires a special way to compile or a specific version of a toolset, please be sure to include that in your running instructions.
-
-__Thank you and good luck!__
+- **Node.js**
+- **Jest** (for unit testing)
+- **Zod** (for data validation)
