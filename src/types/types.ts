@@ -5,9 +5,9 @@ export interface AccountData {
   accountIdentifier: string;
   accountStatus: string;
   accountName: string;
-  accountType?: string;
+  accountType: string;
   accountTypeBank?: string;
-  systemAccount: string;
+  systemAccount?: string;
   valueType: string;
   totalValue: number;
 }

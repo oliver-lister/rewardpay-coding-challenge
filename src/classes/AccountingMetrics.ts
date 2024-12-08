@@ -54,4 +54,30 @@ export class AccountingMetrics {
 
     return netProfit / revenue;
   }
+
+  private calculateAssets(): number {
+    const validAccountTypes = [
+      "current",
+      "bank",
+      "current_accounts_receivable",
+    ];
+
+    const isValidAccountType = (accountType: string): boolean =>
+      validAccountTypes.includes(accountType);
+
+    const isAssetRecord = (record: AccountData, valueType: string): boolean =>
+      record.accountCategory === "assets" &&
+      record.valueType === valueType &&
+      isValidAccountType(record.accountType);
+
+    const debitAssets = this.sumBasedOnCondition((record) =>
+      isAssetRecord(record, "debit"),
+    );
+
+    const creditAssets = this.sumBasedOnCondition((record) =>
+      isAssetRecord(record, "credit"),
+    );
+
+    return debitAssets - creditAssets;
+  }
 }
