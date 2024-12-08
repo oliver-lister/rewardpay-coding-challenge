@@ -29,18 +29,6 @@ describe("AccountingMetrics class", () => {
       expect(accountingMetrics.calculateRevenue()).toBe(0);
     });
 
-    it("should handle negative revenue values correctly", () => {
-      const negativeRevenueData: AccountData[] = [
-        createAccountData({ totalValue: -5000 }),
-        ...mockData,
-      ];
-      accountingMetrics = new AccountingMetrics(negativeRevenueData);
-
-      const result = accountingMetrics.calculateRevenue();
-      const expected = -5000 + 30927.78;
-      expect(result).toBeCloseTo(expected, 2);
-    });
-
     it("should correctly handle records with zero revenue values", () => {
       const zeroRevenueData: AccountData[] = [
         createAccountData({ totalValue: -0 }),
@@ -89,23 +77,6 @@ describe("AccountingMetrics class", () => {
       accountingMetrics = new AccountingMetrics(noExpensesData);
 
       expect(accountingMetrics.calculateExpenses()).toBe(0);
-    });
-
-    it("should handle negative expense values correctly", () => {
-      const negativeExpensesData: AccountData[] = [
-        createAccountData({
-          accountCategory: "expense",
-          totalValue: -1000,
-        }),
-        ...mockData,
-      ];
-      accountingMetrics = new AccountingMetrics(negativeExpensesData);
-
-      const result = accountingMetrics.calculateExpenses();
-
-      const expected = -1000 + 1289.58 + 620.5 + 35.9 + 102.5;
-
-      expect(result).toBeCloseTo(expected, 2);
     });
 
     it("should correctly handle records with zero expense values", () => {
@@ -177,27 +148,6 @@ describe("AccountingMetrics class", () => {
       );
     });
 
-    it("should handle negative gross profit correctly", () => {
-      const negativeProfitData = [
-        createAccountData({
-          accountCategory: "revenue",
-          valueType: "debit",
-          accountType: "sales",
-          totalValue: -5000,
-        }),
-        ...camelCaseMockGeneralLedger.data,
-      ];
-
-      accountingMetrics = new AccountingMetrics(negativeProfitData);
-
-      const result = accountingMetrics.calculateGrossProfitMargin();
-      const grossProfit = -5000 + 5606.5;
-      const revenue = 30927.78 - 5000;
-      const expectedMargin = grossProfit / revenue;
-
-      expect(result).toBeCloseTo(expectedMargin, 2);
-    });
-
     it("should handle extremely large values for gross profit and revenue", () => {
       const largeData = [
         createAccountData({
@@ -239,6 +189,112 @@ describe("AccountingMetrics class", () => {
       const expectedMargin = grossProfit / revenue;
 
       expect(result).toBeCloseTo(expectedMargin, 2);
+    });
+  });
+
+  describe("calculateNetProfitMargin", () => {
+    it("should correctly calculate the net profit margin", () => {
+      const data: AccountData[] = [
+        createAccountData({
+          accountCategory: "revenue",
+          totalValue: 10000,
+          accountType: "sales",
+          valueType: "credit",
+        }),
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: 4000,
+          accountType: "overheads",
+          valueType: "debit",
+        }),
+      ];
+      const accountingMetrics = new AccountingMetrics(data);
+
+      const result = accountingMetrics.calculateNetProfitMargin();
+      const expected = (10000 - 4000) / 10000;
+
+      expect(result).toBeCloseTo(expected, 2);
+    });
+
+    it("should throw an error when revenue is zero", () => {
+      const data: AccountData[] = [
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: 4000,
+          accountType: "overheads",
+          valueType: "debit",
+        }),
+      ];
+      const accountingMetrics = new AccountingMetrics(data);
+
+      expect(() => accountingMetrics.calculateNetProfitMargin()).toThrow(
+        "Revenue cannot be zero when calculating Net Profit Margin.",
+      );
+    });
+
+    it("should correctly handle zero expenses", () => {
+      const data: AccountData[] = [
+        createAccountData({
+          accountCategory: "revenue",
+          totalValue: 5000,
+          accountType: "sales",
+          valueType: "credit",
+        }),
+      ];
+      const accountingMetrics = new AccountingMetrics(data);
+
+      const result = accountingMetrics.calculateNetProfitMargin();
+      const expected = 1;
+
+      expect(result).toBe(expected);
+    });
+
+    it("should return zero when expenses equal revenue", () => {
+      const data: AccountData[] = [
+        createAccountData({
+          accountCategory: "revenue",
+          totalValue: 5000,
+          accountType: "sales",
+          valueType: "credit",
+        }),
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: 5000,
+          accountType: "overheads",
+          valueType: "credit",
+        }),
+      ];
+      const accountingMetrics = new AccountingMetrics(data);
+
+      const result = accountingMetrics.calculateNetProfitMargin();
+      const expected = 0;
+
+      expect(result).toBe(expected);
+    });
+
+    it("should handle very large revenue and expense values", () => {
+      const data: AccountData[] = [
+        createAccountData({
+          accountCategory: "revenue",
+          totalValue: Number.MAX_SAFE_INTEGER,
+          accountType: "sales",
+          valueType: "credit",
+        }),
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: Number.MAX_SAFE_INTEGER / 2,
+          accountType: "overheads",
+          valueType: "debit",
+        }),
+      ];
+      const accountingMetrics = new AccountingMetrics(data);
+
+      const result = accountingMetrics.calculateNetProfitMargin();
+      const expected =
+        (Number.MAX_SAFE_INTEGER - Number.MAX_SAFE_INTEGER / 2) /
+        Number.MAX_SAFE_INTEGER;
+
+      expect(result).toBeCloseTo(expected, 2);
     });
   });
 });

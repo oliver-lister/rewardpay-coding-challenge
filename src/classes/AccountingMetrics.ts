@@ -39,4 +39,19 @@ export class AccountingMetrics {
 
     return grossProfit / revenue;
   }
+
+  calculateNetProfitMargin(): number {
+    const revenue = this.calculateRevenue();
+
+    if (revenue === 0) {
+      throw new Error(
+        "Revenue cannot be zero when calculating Net Profit Margin.",
+      );
+    }
+
+    const expenses = this.calculateExpenses();
+    const netProfit = revenue - expenses;
+
+    return netProfit / revenue;
+  }
 }
