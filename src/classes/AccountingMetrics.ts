@@ -22,4 +22,21 @@ export class AccountingMetrics {
       (record) => record.accountCategory === "expense",
     );
   }
+
+  calculateGrossProfitMargin(): number {
+    const grossProfit = this.sumBasedOnCondition(
+      (record) =>
+        record.accountType === "sales" && record.valueType === "debit",
+    );
+
+    const revenue = this.calculateRevenue();
+
+    if (revenue === 0) {
+      throw new Error(
+        "Revenue cannot be zero when calculating Gross Profit Margin.",
+      );
+    }
+
+    return grossProfit / revenue;
+  }
 }
