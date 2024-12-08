@@ -1,6 +1,7 @@
 import { AccountingMetrics } from "../../src/classes/AccountingMetrics";
 import { AccountData } from "../../src/types/types";
 import { camelCaseMockGeneralLedger } from "../__mocks__/mockGeneralLedger";
+import { createAccountData } from "../utils/createAccountData";
 
 const mockData: AccountData[] = camelCaseMockGeneralLedger.data;
 
@@ -30,19 +31,7 @@ describe("AccountingMetrics class", () => {
 
     it("should handle negative revenue values correctly", () => {
       const negativeRevenueData: AccountData[] = [
-        {
-          accountType: "",
-          totalValue: -5000,
-          accountCategory: "revenue",
-          accountCode: "",
-          accountCurrency: "",
-          accountIdentifier: "",
-          accountStatus: "",
-          accountName: "",
-          accountTypeBank: "",
-          systemAccount: "",
-          valueType: "",
-        },
+        createAccountData({ totalValue: -5000 }),
         ...mockData,
       ];
       accountingMetrics = new AccountingMetrics(negativeRevenueData);
@@ -54,19 +43,7 @@ describe("AccountingMetrics class", () => {
 
     it("should correctly handle records with zero revenue values", () => {
       const zeroRevenueData: AccountData[] = [
-        {
-          accountType: "revenue",
-          totalValue: 0,
-          accountCategory: "revenue",
-          accountCode: "",
-          accountCurrency: "",
-          accountIdentifier: "",
-          accountStatus: "",
-          accountName: "",
-          accountTypeBank: "",
-          systemAccount: "",
-          valueType: "",
-        },
+        createAccountData({ totalValue: -0 }),
         ...mockData,
       ];
       accountingMetrics = new AccountingMetrics(zeroRevenueData);
@@ -84,32 +61,8 @@ describe("AccountingMetrics class", () => {
 
     it("should handle extremely large and small revenue values", () => {
       const extremeData: AccountData[] = [
-        {
-          accountType: "revenue",
-          totalValue: Number.MAX_SAFE_INTEGER,
-          accountCategory: "revenue",
-          accountCode: "",
-          accountCurrency: "",
-          accountIdentifier: "",
-          accountStatus: "",
-          accountName: "",
-          accountTypeBank: "",
-          systemAccount: "",
-          valueType: "",
-        },
-        {
-          accountType: "revenue",
-          totalValue: Number.MIN_SAFE_INTEGER,
-          accountCategory: "revenue",
-          accountCode: "",
-          accountCurrency: "",
-          accountIdentifier: "",
-          accountStatus: "",
-          accountName: "",
-          accountTypeBank: "",
-          systemAccount: "",
-          valueType: "",
-        },
+        createAccountData({ totalValue: Number.MAX_SAFE_INTEGER }),
+        createAccountData({ totalValue: Number.MIN_SAFE_INTEGER }),
       ];
       accountingMetrics = new AccountingMetrics(extremeData);
 
