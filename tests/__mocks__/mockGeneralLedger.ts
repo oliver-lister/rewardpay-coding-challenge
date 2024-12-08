@@ -18,6 +18,19 @@ export const mockGeneralLedger = {
       total_value: 25321.28,
     },
     {
+      account_category: "revenue",
+      account_code: "200",
+      account_currency: "AUD",
+      account_identifier: "2d5bb9f2-a096-4fa6-9c97-83e1c64f839e",
+      account_status: "ACTIVE",
+      value_type: "debit",
+      account_name: "Sales",
+      account_type: "sales",
+      account_type_bank: "",
+      system_account: "",
+      total_value: 5606.5,
+    },
+    {
       account_code: "400",
       account_currency: "AUD",
       account_identifier: "2d5bb9be-a096-4fa3-9c97-83e1d64f839e",
@@ -70,6 +83,12 @@ export const mockGeneralLedger = {
       total_value: 102.5,
     },
   ],
+  currency: "AUD",
+  object_origin_type: "accounting",
+  object_origin_category: "bookkeeping",
+  object_type: "day",
+  object_class: "timeline-balance",
+  balance_date: "2020-09-30T00:00:00.000Z",
 };
 
 export const camelCaseMockGeneralLedger = {
@@ -90,6 +109,19 @@ export const camelCaseMockGeneralLedger = {
       accountTypeBank: "",
       systemAccount: "",
       totalValue: 25321.28,
+    },
+    {
+      accountCategory: "revenue",
+      accountCode: "200",
+      accountCurrency: "AUD",
+      accountIdentifier: "2d5bb9f2-a096-4fa6-9c97-83e1c64f839e",
+      accountStatus: "ACTIVE",
+      valueType: "debit",
+      accountName: "Sales",
+      accountType: "sales",
+      accountTypeBank: "",
+      systemAccount: "",
+      totalValue: 5606.5,
     },
     {
       accountCategory: "expense",
@@ -144,4 +176,10 @@ export const camelCaseMockGeneralLedger = {
       totalValue: 102.5,
     },
   ],
+  currency: "AUD",
+  objectOriginType: "accounting",
+  objectOriginCategory: "bookkeeping",
+  objectType: "day",
+  objectClass: "timeline-balance",
+  balanceDate: "2020-09-30T00:00:00.000Z",
 };

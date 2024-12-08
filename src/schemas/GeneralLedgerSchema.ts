@@ -6,6 +6,12 @@ export const GeneralLedgerSchema = z
     connectionId: z.string().uuid(),
     user: z.string().uuid(),
     objectCreationDate: z.string().datetime(),
+    currency: z.string(),
+    objectOriginType: z.string(),
+    objectOriginCategory: z.string(),
+    objectType: z.string(),
+    objectClass: z.string(),
+    balanceDate: z.string().datetime(),
     data: z
       .array(
         z.object({

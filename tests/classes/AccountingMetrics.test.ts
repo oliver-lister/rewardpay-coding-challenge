@@ -15,7 +15,7 @@ describe("AccountingMetrics class", () => {
   describe("calculateRevenue", () => {
     it("should correctly calculate total revenue from the data", () => {
       const result = accountingMetrics.calculateRevenue();
-      const expected = 25321.28;
+      const expected = 30927.78;
 
       expect(result).toBeCloseTo(expected, 2);
     });
@@ -37,7 +37,7 @@ describe("AccountingMetrics class", () => {
       accountingMetrics = new AccountingMetrics(negativeRevenueData);
 
       const result = accountingMetrics.calculateRevenue();
-      const expected = -5000 + 25321.28;
+      const expected = -5000 + 30927.78;
       expect(result).toBeCloseTo(expected, 2);
     });
 
@@ -49,7 +49,7 @@ describe("AccountingMetrics class", () => {
       accountingMetrics = new AccountingMetrics(zeroRevenueData);
 
       const result = accountingMetrics.calculateRevenue();
-      const expected = 25321.28;
+      const expected = 30927.78;
 
       expect(result).toBeCloseTo(expected, 2);
     });
@@ -151,6 +151,94 @@ describe("AccountingMetrics class", () => {
       const expected = Number.MAX_SAFE_INTEGER + Number.MIN_SAFE_INTEGER;
 
       expect(result).toBe(expected);
+    });
+  });
+
+  describe("calculateGrossProfitMargin", () => {
+    it("should correctly calculate the gross profit margin when revenue is non-zero", () => {
+      const result = accountingMetrics.calculateGrossProfitMargin();
+      const grossProfit = 5606.5;
+      const revenue = 30927.78;
+      const expectedMargin = grossProfit / revenue;
+
+      expect(result).toBeCloseTo(expectedMargin, 2);
+    });
+
+    it("should throw an error when revenue is zero", () => {
+      const zeroRevenueData = camelCaseMockGeneralLedger.data.filter(
+        (record) => record.accountCategory !== "revenue",
+      );
+      accountingMetrics = new AccountingMetrics(zeroRevenueData);
+
+      expect(() => {
+        accountingMetrics.calculateGrossProfitMargin();
+      }).toThrow(
+        "Revenue cannot be zero when calculating Gross Profit Margin.",
+      );
+    });
+
+    it("should handle negative gross profit correctly", () => {
+      const negativeProfitData = [
+        createAccountData({
+          accountCategory: "revenue",
+          valueType: "debit",
+          accountType: "sales",
+          totalValue: -5000,
+        }),
+        ...camelCaseMockGeneralLedger.data,
+      ];
+
+      accountingMetrics = new AccountingMetrics(negativeProfitData);
+
+      const result = accountingMetrics.calculateGrossProfitMargin();
+      const grossProfit = -5000 + 5606.5;
+      const revenue = 30927.78 - 5000;
+      const expectedMargin = grossProfit / revenue;
+
+      expect(result).toBeCloseTo(expectedMargin, 2);
+    });
+
+    it("should handle extremely large values for gross profit and revenue", () => {
+      const largeData = [
+        createAccountData({
+          accountCategory: "revenue",
+          valueType: "debit",
+          accountType: "sales",
+          totalValue: Number.MAX_SAFE_INTEGER,
+        }),
+      ];
+
+      accountingMetrics = new AccountingMetrics(largeData);
+
+      const result = accountingMetrics.calculateGrossProfitMargin();
+      const grossProfit = Number.MAX_SAFE_INTEGER;
+      const revenue = Number.MAX_SAFE_INTEGER;
+      const expectedMargin = grossProfit / revenue;
+
+      expect(result).toBe(expectedMargin);
+    });
+
+    it("should correctly calculate gross profit margin when there are multiple revenue records", () => {
+      const additionalRevenue = createAccountData({
+        accountCategory: "revenue",
+        valueType: "debit",
+        accountType: "sales",
+        totalValue: 10000,
+      });
+
+      const updatedData = [
+        additionalRevenue,
+        ...camelCaseMockGeneralLedger.data,
+      ];
+
+      accountingMetrics = new AccountingMetrics(updatedData);
+
+      const result = accountingMetrics.calculateGrossProfitMargin();
+      const grossProfit = 10000 + 5606.5;
+      const revenue = 30927.78 + 10000;
+      const expectedMargin = grossProfit / revenue;
+
+      expect(result).toBeCloseTo(expectedMargin, 2);
     });
   });
 });

@@ -5,9 +5,9 @@ export interface AccountData {
   accountIdentifier: string;
   accountStatus: string;
   accountName: string;
-  accountType: string;
+  accountType?: string;
   accountTypeBank?: string;
-  systemAccount?: string;
+  systemAccount: string;
   valueType: string;
   totalValue: number;
 }
@@ -18,4 +18,10 @@ export interface RootObject {
   user: string;
   objectCreationDate: string;
   data: AccountData[];
+  currency: string;
+  objectOriginType: string;
+  objectOriginCategory: string;
+  objectType: string;
+  objectClass: string;
+  balanceDate: string;
 }
