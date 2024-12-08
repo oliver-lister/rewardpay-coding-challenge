@@ -72,4 +72,85 @@ describe("AccountingMetrics class", () => {
       expect(result).toBe(expected);
     });
   });
+
+  describe("calculateExpenses", () => {
+    it("should correctly calculate total expenses from the data", () => {
+      const result = accountingMetrics.calculateExpenses();
+
+      const expected = 1289.58 + 620.5 + 35.9 + 102.5;
+
+      expect(result).toBeCloseTo(expected, 2);
+    });
+
+    it("should return 0 when no expense records exist", () => {
+      const noExpensesData: AccountData[] = mockData.filter(
+        (record) => record.accountCategory !== "expense",
+      );
+      accountingMetrics = new AccountingMetrics(noExpensesData);
+
+      expect(accountingMetrics.calculateExpenses()).toBe(0);
+    });
+
+    it("should handle negative expense values correctly", () => {
+      const negativeExpensesData: AccountData[] = [
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: -1000,
+        }),
+        ...mockData,
+      ];
+      accountingMetrics = new AccountingMetrics(negativeExpensesData);
+
+      const result = accountingMetrics.calculateExpenses();
+
+      const expected = -1000 + 1289.58 + 620.5 + 35.9 + 102.5;
+
+      expect(result).toBeCloseTo(expected, 2);
+    });
+
+    it("should correctly handle records with zero expense values", () => {
+      const zeroExpensesData: AccountData[] = [
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: 0,
+        }),
+        ...mockData,
+      ];
+      accountingMetrics = new AccountingMetrics(zeroExpensesData);
+
+      const result = accountingMetrics.calculateExpenses();
+
+      const expected = 1289.58 + 620.5 + 35.9 + 102.5;
+
+      expect(result).toBeCloseTo(expected, 2);
+    });
+
+    it("should return 0 for an empty data array", () => {
+      accountingMetrics = new AccountingMetrics([]);
+
+      const expected = 0;
+
+      expect(accountingMetrics.calculateExpenses()).toBe(expected);
+    });
+
+    it("should handle extremely large and small expense values", () => {
+      const extremeExpensesData: AccountData[] = [
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: Number.MAX_SAFE_INTEGER,
+        }),
+        createAccountData({
+          accountCategory: "expense",
+          totalValue: Number.MIN_SAFE_INTEGER,
+        }),
+      ];
+      accountingMetrics = new AccountingMetrics(extremeExpensesData);
+
+      const result = accountingMetrics.calculateExpenses();
+
+      const expected = Number.MAX_SAFE_INTEGER + Number.MIN_SAFE_INTEGER;
+
+      expect(result).toBe(expected);
+    });
+  });
 });
