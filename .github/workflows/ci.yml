@@ -22,7 +22,7 @@ jobs:
           docker build -t rewardpay-coding-challenge . | tee test-logs.txt
 
       - name: Upload test logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-logs
           path: test-logs.txt
