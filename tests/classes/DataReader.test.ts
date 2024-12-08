@@ -116,109 +116,101 @@ describe("DataReader class", () => {
     });
   });
 
-  describe("DataReader class", () => {
-    let dataReader: DataReader;
-
-    beforeEach(() => {
-      dataReader = new DataReader();
+  describe("validateLedger", () => {
+    it("should validate a correct general ledger object", () => {
+      const result = dataReader.validateLedger(camelCaseMockGeneralLedger);
+      expect(result).toEqual(camelCaseMockGeneralLedger);
     });
 
-    describe("validateLedger", () => {
-      it("should validate a correct general ledger object", () => {
-        const result = dataReader.validateLedger(camelCaseMockGeneralLedger);
-        expect(result).toEqual(camelCaseMockGeneralLedger);
-      });
+    it("should throw an error when the general ledger is missing required fields", () => {
+      const { connectionId, ...invalidLedger } = camelCaseMockGeneralLedger;
 
-      it("should throw an error when the general ledger is missing required fields", () => {
-        const { connectionId, ...invalidLedger } = camelCaseMockGeneralLedger;
+      expect(() => {
+        dataReader.validateLedger(invalidLedger as unknown as RootObject);
+      }).toThrow(/Required/);
+    });
 
-        expect(() => {
-          dataReader.validateLedger(invalidLedger as unknown as RootObject);
-        }).toThrow(/Required/);
-      });
+    it("should throw an error when a UUID field has an invalid format", () => {
+      const invalidLedger = {
+        ...camelCaseMockGeneralLedger,
+        connectionId: "invalid-uuid",
+      };
 
-      it("should throw an error when a UUID field has an invalid format", () => {
-        const invalidLedger = {
-          ...camelCaseMockGeneralLedger,
-          connectionId: "invalid-uuid",
-        };
+      expect(() => {
+        dataReader.validateLedger(invalidLedger);
+      }).toThrow(/Invalid uuid/);
+    });
 
-        expect(() => {
-          dataReader.validateLedger(invalidLedger);
-        }).toThrow(/Invalid input/);
-      });
+    it("should throw an error when a UUID field in `data` is invalid", () => {
+      const invalidLedger = {
+        ...camelCaseMockGeneralLedger,
+        data: [
+          ...camelCaseMockGeneralLedger.data,
+          {
+            accountCategory: "revenue",
+            accountCode: "200",
+            accountCurrency: "AUD",
+            accountIdentifier: "not-a-uuid", // Invalid
+            accountStatus: "ACTIVE",
+            valueType: "credit",
+            accountName: "Sales",
+            accountType: "sales",
+            totalValue: 10000,
+          },
+        ],
+      };
 
-      it("should throw an error when a UUID field in `data` is invalid", () => {
-        const invalidLedger = {
-          ...camelCaseMockGeneralLedger,
-          data: [
-            ...camelCaseMockGeneralLedger.data,
-            {
-              accountCategory: "revenue",
-              accountCode: "200",
-              accountCurrency: "AUD",
-              accountIdentifier: "not-a-uuid", // Invalid
-              accountStatus: "ACTIVE",
-              valueType: "credit",
-              accountName: "Sales",
-              accountType: "sales",
-              totalValue: 10000,
-            },
-          ],
-        };
+      expect(() => {
+        dataReader.validateLedger(invalidLedger as unknown as RootObject);
+      }).toThrow(/Invalid uuid/);
+    });
 
-        expect(() => {
-          dataReader.validateLedger(invalidLedger as unknown as RootObject);
-        }).toThrow(/Invalid input/);
-      });
+    it("should throw an error when the `data` array is empty", () => {
+      const invalidLedger = {
+        ...camelCaseMockGeneralLedger,
+        data: [],
+      };
 
-      it("should throw an error when the `data` array is empty", () => {
-        const invalidLedger = {
-          ...camelCaseMockGeneralLedger,
-          data: [],
-        };
+      expect(() => {
+        dataReader.validateLedger(invalidLedger);
+      }).toThrow(/Array must contain at least 1 element/);
+    });
 
-        expect(() => {
-          dataReader.validateLedger(invalidLedger);
-        }).toThrow(/Invalid input/);
-      });
+    it("should throw an error for incorrect date formats in `objectCreationDate`", () => {
+      const invalidLedger = {
+        ...camelCaseMockGeneralLedger,
+        objectCreationDate: "not-a-valid-date",
+      };
 
-      it("should throw an error for incorrect date formats in `objectCreationDate`", () => {
-        const invalidLedger = {
-          ...camelCaseMockGeneralLedger,
-          objectCreationDate: "not-a-valid-date",
-        };
+      expect(() => {
+        dataReader.validateLedger(invalidLedger);
+      }).toThrow(/Invalid datetime/);
+    });
 
-        expect(() => {
-          dataReader.validateLedger(invalidLedger);
-        }).toThrow(/Invalid datetime/);
-      });
+    it("should throw an error when optional fields have invalid types", () => {
+      const invalidLedger = {
+        ...camelCaseMockGeneralLedger,
+        data: [
+          ...camelCaseMockGeneralLedger.data,
+          {
+            accountCategory: "revenue",
+            accountCode: "200",
+            accountCurrency: "AUD",
+            accountIdentifier: "2d5bb9be-a096-4fa6-9c97-83e1c64f839e",
+            accountStatus: "ACTIVE",
+            valueType: "credit",
+            accountName: "Sales",
+            accountType: "sales",
+            accountTypeBank: 123, // Invalid type
+            systemAccount: true, // Invalid type
+            totalValue: 10000,
+          },
+        ],
+      };
 
-      it("should throw an error when optional fields have invalid types", () => {
-        const invalidLedger = {
-          ...camelCaseMockGeneralLedger,
-          data: [
-            ...camelCaseMockGeneralLedger.data,
-            {
-              accountCategory: "revenue",
-              accountCode: "200",
-              accountCurrency: "AUD",
-              accountIdentifier: "2d5bb9be-a096-4fa6-9c97-83e1c64f839e",
-              accountStatus: "ACTIVE",
-              valueType: "credit",
-              accountName: "Sales",
-              accountType: "sales",
-              accountTypeBank: 123, // Invalid type
-              systemAccount: true, // Invalid type
-              totalValue: 10000,
-            },
-          ],
-        };
-
-        expect(() => {
-          dataReader.validateLedger(invalidLedger as unknown as RootObject);
-        }).toThrow(/Expected string/);
-      });
+      expect(() => {
+        dataReader.validateLedger(invalidLedger as unknown as RootObject);
+      }).toThrow(/Expected string/);
     });
   });
 });
