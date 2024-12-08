@@ -299,6 +299,15 @@ describe("AccountingMetrics class", () => {
   });
 
   describe("calculateCategoryNetValue", () => {
+    it("throws an error for an invalid category", () => {
+      expect(() => {
+        accountingMetrics["calculateCategoryNetValue"](
+          "invalid-category" as unknown as "assets",
+          ["current"],
+        );
+      }).toThrow("Invalid category: invalid-category");
+    });
+
     describe("assets", () => {
       it("should correctly calculate the net value of assets with valid debit and credit records", () => {
         const validAccountTypes = [
@@ -394,6 +403,126 @@ describe("AccountingMetrics class", () => {
         );
 
         expect(result).toBe(0);
+      });
+    });
+
+    describe("liabilities", () => {
+      it("should correctly calculate the net value of liabilities with valid debit and credit records", () => {
+        const validAccountTypes = ["current", "current_accounts_payable"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "liability",
+          validAccountTypes,
+        );
+
+        const expectedDebitTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "liability" &&
+              record.valueType === "debit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        const expectedCreditTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "liability" &&
+              record.valueType === "credit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        const expectedNetValue = expectedDebitTotal - expectedCreditTotal;
+
+        expect(result).toBeCloseTo(expectedNetValue, 2);
+      });
+
+      it("should return 0 if there are no valid liability records", () => {
+        const validAccountTypes = ["invalid_type"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "liability",
+          validAccountTypes,
+        );
+        expect(result).toBe(0);
+      });
+
+      it("should correctly calculate the net value when all liability records are debits", () => {
+        const validAccountTypes = ["current"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "liability",
+          validAccountTypes,
+        );
+
+        const expectedDebitTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "liability" &&
+              record.valueType === "debit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        expect(result).toBeCloseTo(expectedDebitTotal, 2);
+      });
+
+      it("should correctly calculate the net value when all liability records are credits", () => {
+        const validAccountTypes = ["current_accounts_payable"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "liability",
+          validAccountTypes,
+        );
+
+        const expectedCreditTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "liability" &&
+              record.valueType === "credit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        expect(result).toBeCloseTo(-expectedCreditTotal, 2);
+      });
+
+      it("should handle empty data correctly", () => {
+        accountingMetrics = new AccountingMetrics([]);
+        const validAccountTypes = ["current", "current_accounts_payable"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "liability",
+          validAccountTypes,
+        );
+
+        expect(result).toBe(0);
+      });
+
+      it("should correctly handle mixed debit and credit liability records", () => {
+        const validAccountTypes = ["current", "current_accounts_payable"];
+        const result = accountingMetrics["calculateCategoryNetValue"](
+          "liability",
+          validAccountTypes,
+        );
+
+        const expectedDebitTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "liability" &&
+              record.valueType === "debit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        const expectedCreditTotal = camelCaseMockGeneralLedger.data
+          .filter(
+            (record) =>
+              record.accountCategory === "liability" &&
+              record.valueType === "credit" &&
+              validAccountTypes.includes(record.accountType),
+          )
+          .reduce((sum, record) => sum + record.totalValue, 0);
+
+        const expectedNetValue = expectedDebitTotal - expectedCreditTotal;
+
+        expect(result).toBeCloseTo(expectedNetValue, 2);
       });
     });
   });
