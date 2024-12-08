@@ -43,4 +43,40 @@ describe("Formatter class", () => {
       expect(formatter.formatCurrency(0.5)).toBe("$1");
     });
   });
+
+  describe("formatPercentage", () => {
+    it("should format a small decimal value correctly", () => {
+      expect(formatter.formatPercentage(0.1234)).toBe("12.3%");
+      expect(formatter.formatPercentage(0.1)).toBe("10.0%");
+    });
+
+    it("should format a large decimal value correctly", () => {
+      expect(formatter.formatPercentage(1.23)).toBe("123.0%");
+      expect(formatter.formatPercentage(1.4567)).toBe("145.7%");
+    });
+
+    it("should handle whole numbers correctly", () => {
+      expect(formatter.formatPercentage(0)).toBe("0.0%");
+      expect(formatter.formatPercentage(1)).toBe("100.0%");
+    });
+
+    it("should handle negative values correctly", () => {
+      expect(formatter.formatPercentage(-0.5)).toBe("-50.0%");
+      expect(formatter.formatPercentage(-2.34)).toBe("-234.0%");
+    });
+
+    it("should handle very small fractions", () => {
+      expect(formatter.formatPercentage(0.0001)).toBe("0.0%");
+      expect(formatter.formatPercentage(0.0005)).toBe("0.1%");
+    });
+
+    it("should handle very large values", () => {
+      expect(formatter.formatPercentage(12345)).toBe("1234500.0%");
+    });
+
+    it("should handle numbers with high precision", () => {
+      expect(formatter.formatPercentage(0.123456789)).toBe("12.3%");
+      expect(formatter.formatPercentage(1.987654321)).toBe("198.8%");
+    });
+  });
 });
