@@ -3,6 +3,11 @@ import { AccountData } from "../types/types";
 export class AccountingMetrics {
   constructor(private data: AccountData[]) {}
 
+  /**
+   * Sums the totalValue of records that match a given condition.
+   * @param predicate - A function that specifies the condition to filter records.
+   * @returns The sum of totalValue for the filtered records.
+   */
   private sumBasedOnCondition(
     predicate: (record: AccountData) => boolean,
   ): number {
@@ -11,18 +16,31 @@ export class AccountingMetrics {
       .reduce((sum, record) => sum + record.totalValue, 0);
   }
 
+  /**
+   * Calculates the total revenue from account data.
+   * @returns The total revenue as a number.
+   */
   calculateRevenue(): number {
     return this.sumBasedOnCondition(
       (record) => record.accountCategory === "revenue",
     );
   }
 
+  /**
+   * Calculates the total expenses from account data.
+   * @returns The total expenses as a number.
+   */
   calculateExpenses(): number {
     return this.sumBasedOnCondition(
       (record) => record.accountCategory === "expense",
     );
   }
 
+  /**
+   * Calculates the gross profit margin.
+   * @throws If revenue is zero, throws an error.
+   * @returns The gross profit margin as a fraction of revenue.
+   */
   calculateGrossProfitMargin(): number {
     const grossProfit = this.sumBasedOnCondition(
       (record) =>
@@ -40,6 +58,11 @@ export class AccountingMetrics {
     return grossProfit / revenue;
   }
 
+  /**
+   * Calculates the net profit margin.
+   * @throws If revenue is zero, throws an error.
+   * @returns The net profit margin as a fraction of revenue.
+   */
   calculateNetProfitMargin(): number {
     const revenue = this.calculateRevenue();
 
@@ -55,6 +78,13 @@ export class AccountingMetrics {
     return netProfit / revenue;
   }
 
+  /**
+   * Calculates the net value for a specific account category (e.g., assets or liabilities).
+   * @param category - The account category ("assets" or "liability").
+   * @param validAccountTypes - Array of valid account types for the category.
+   * @throws If the category is invalid, throws an error.
+   * @returns The net value (debits - credits) for the specified category.
+   */
   private calculateCategoryNetValue(
     category: "assets" | "liability",
     validAccountTypes: string[],
@@ -82,6 +112,10 @@ export class AccountingMetrics {
     return debitTotal - creditTotal;
   }
 
+  /**
+   * Calculates the total assets from account data.
+   * @returns The total assets as a number.
+   */
   private calculateAssets(): number {
     const validAccountTypes = [
       "current",
@@ -91,11 +125,20 @@ export class AccountingMetrics {
     return this.calculateCategoryNetValue("assets", validAccountTypes);
   }
 
+  /**
+   * Calculates the total liabilities from account data.
+   * @returns The total liabilities as a number.
+   */
   private calculateLiabilities(): number {
     const validAccountTypes = ["current", "current_accounts_payable"];
     return this.calculateCategoryNetValue("liability", validAccountTypes);
   }
 
+  /**
+   * Calculates the working capital ratio (assets/liabilities).
+   * @throws If liabilities are zero, throws an error.
+   * @returns The working capital ratio as a number.
+   */
   calculateWorkingCapitalRatio(): number {
     const liabilities = this.calculateLiabilities();
     if (liabilities === 0) {
