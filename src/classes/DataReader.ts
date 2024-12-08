@@ -1,4 +1,6 @@
 import { promises } from "fs";
+import { RootObject } from "../types/types";
+import { GeneralLedgerSchema } from "../schemas/GeneralLedgerSchema";
 
 export class DataReader {
   /**
@@ -41,5 +43,15 @@ export class DataReader {
       ) as T;
     }
     return object;
+  }
+
+  /**
+   * Validates a general ledger object against the GeneralLedgerSchema.
+   * @param ledger - The general ledger object to validate.
+   * @returns The validated general ledger object.
+   * @throws If the ledger object does not conform to the schema.
+   */
+  validateLedger(ledger: RootObject) {
+    return GeneralLedgerSchema.parse(ledger);
   }
 }
