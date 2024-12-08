@@ -1,6 +1,6 @@
 import { AccountData } from "../types/types";
 
-class AccountingMetrics {
+export class AccountingMetrics {
   constructor(private data: AccountData[]) {}
 
   private sumBasedOnCondition(
@@ -13,13 +13,13 @@ class AccountingMetrics {
 
   calculateRevenue(): number {
     return this.sumBasedOnCondition(
-      (record) => record.accountType === "revenue",
+      (record) => record.accountCategory === "revenue",
     );
   }
 
   calculateExpenses(): number {
     return this.sumBasedOnCondition(
-      (record) => record.accountType === "expenses",
+      (record) => record.accountCategory === "expense",
     );
   }
 }
