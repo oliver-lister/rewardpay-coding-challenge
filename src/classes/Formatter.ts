@@ -1,6 +1,8 @@
 export class Formatter {
   formatCurrency(value: number): string {
-    return `$${Math.round(value).toLocaleString()}`;
+    const absoluteValue = Math.abs(value);
+    const formattedValue = `$${Math.round(absoluteValue).toLocaleString()}`;
+    return value < 0 ? `-${formattedValue}` : formattedValue;
   }
 
   formatPercentage(value: number): string {
