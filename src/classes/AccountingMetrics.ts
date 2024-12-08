@@ -149,8 +149,6 @@ export class AccountingMetrics {
       );
     }
     const assets = this.calculateAssets();
-    console.log("Assets:", assets);
-    console.log("Liabilities:", liabilities);
 
     return assets / liabilities;
   }
