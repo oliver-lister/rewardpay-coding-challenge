@@ -19,6 +19,12 @@ export class DataReader {
     }
   }
 
+  /**
+   * Converts an object's keys to camelCase recursively.
+   * Handles nested objects and arrays.
+   * @param object - The object to be converted.
+   * @returns A new object with camelCase keys.
+   */
   static convertToCamelCase<T>(object: any): T {
     if (Array.isArray(object)) {
       return object.map(this.convertToCamelCase) as T;
