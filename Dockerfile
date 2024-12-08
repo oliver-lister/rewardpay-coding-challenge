@@ -8,8 +8,8 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+RUN echo "Running tests..." && npm test --verbose
 
-EXPOSE 3000
+RUN echo "Building application..." && npm run build
 
 CMD ["npm", "start"]
