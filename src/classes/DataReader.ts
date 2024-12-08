@@ -25,9 +25,9 @@ export class DataReader {
    * @param object - The object to be converted.
    * @returns A new object with camelCase keys.
    */
-  static convertToCamelCase<T>(object: any): T {
+  convertToCamelCase<T>(object: any): T {
     if (Array.isArray(object)) {
-      return object.map(this.convertToCamelCase) as T;
+      return object.map((item) => this.convertToCamelCase(item)) as T;
     } else if (object !== null && object.constructor === Object) {
       return Object.entries(object).reduce(
         (acc, [key, value]) => {
